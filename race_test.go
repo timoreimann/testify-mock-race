@@ -2,6 +2,7 @@ package race
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,7 +32,7 @@ func TestDo(t *testing.T) {
 	myMock := &EnderMock{}
 	myMock.On("End", ctx, txType).Return(nil)
 	// Commenting in this one makes the race go away :(
-	// myMock.On("Fail", ctx, txType).Return(errors.New("failing hard"))
+	myMock.On("Fail", ctx, txType).Return(errors.New("failing hard"))
 
 	d := server{dep: myMock}
 	err := d.Unsubscribe(ctx)
