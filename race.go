@@ -6,7 +6,16 @@ import (
 )
 
 type Tx struct {
-	val int
+	val  int
+	ctx  context.Context
+	done bool
+}
+
+func (tx *Tx) awaitDone() {
+	go func() {
+		<-tx.ctx.Done()
+		tx.done = true
+	}()
 }
 
 type Dependency interface {
@@ -20,11 +29,12 @@ type server struct {
 }
 
 func (d *server) Unsubscribe(ctx context.Context) error {
-	tx := &Tx{23}
-	go func() {
-		<-ctx.Done()
-		d.res = tx.val
-	}()
+	txCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+	tx := &Tx{val: 22, ctx: txCtx}
+	tx.awaitDone()
+
+	d.res = tx.val
 
 	if err := d.dep.End(ctx, tx); err != nil {
 		return fmt.Errorf("End failed: %s", err)
