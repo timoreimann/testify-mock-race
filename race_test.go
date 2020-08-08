@@ -4,11 +4,10 @@ import (
 	"context"
 	"testing"
 
+	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
-
-var txType = mock.AnythingOfType("*race.Tx")
 
 type EnderMock struct {
 	mock.Mock
@@ -23,13 +22,14 @@ func TestDo(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	myMock := &EnderMock{}
-	myMock.On("End", ctx, txType).Return(nil)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	myMock := NewMockDependency(ctrl)
+
+	myMock.EXPECT().End(gomock.Any(), gomock.Any()).Return(nil)
 
 	d := server{dep: myMock}
 	err := d.Unsubscribe(ctx)
 	assert.NoError(t, err)
 	cancel()
-
-	myMock.AssertExpectations(t)
 }
