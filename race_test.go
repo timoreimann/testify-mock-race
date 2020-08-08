@@ -2,7 +2,6 @@ package race
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,11 +24,11 @@ func TestDo(t *testing.T) {
 	defer cancel()
 
 	myMock := &EnderMock{}
-	myMock.On("End", ctx, txType).Return(errors.New("failing hard"))
+	myMock.On("End", ctx, txType).Return(nil)
 
 	d := server{dep: myMock}
 	err := d.Unsubscribe(ctx)
-	assert.Error(t, err)
+	assert.NoError(t, err)
 	cancel()
 
 	myMock.AssertExpectations(t)

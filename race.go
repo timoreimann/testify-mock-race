@@ -2,7 +2,6 @@ package race
 
 import (
 	"context"
-	"fmt"
 )
 
 type Tx struct {
@@ -31,8 +30,5 @@ func (d *server) Unsubscribe(ctx context.Context) error {
 	tx := &Tx{ctx: txCtx}
 	tx.awaitDone()
 
-	if err := d.dep.End(ctx, tx); err != nil {
-		return fmt.Errorf("End failed: %s", err)
-	}
-	return nil
+	return d.dep.End(ctx, tx)
 }
