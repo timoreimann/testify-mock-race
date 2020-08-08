@@ -20,18 +20,12 @@ func (m *EnderMock) End(ctx context.Context, tx *Tx) error {
 	return args.Error(0)
 }
 
-func (m *EnderMock) Fail(ctx context.Context, tx *Tx) error {
-	args := m.Called(ctx, tx)
-	return args.Error(0)
-}
-
 func TestDo(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	myMock := &EnderMock{}
-	myMock.On("End", ctx, txType).Return(nil)
-	myMock.On("Fail", ctx, txType).Return(errors.New("failing hard"))
+	myMock.On("End", ctx, txType).Return(errors.New("failing hard"))
 
 	d := server{dep: myMock}
 	err := d.Unsubscribe(ctx)

@@ -19,7 +19,6 @@ func (tx *Tx) awaitDone() {
 
 type Dependency interface {
 	End(ctx context.Context, tx *Tx) error
-	Fail(ctx context.Context, tx *Tx) error
 }
 
 type server struct {
@@ -34,9 +33,6 @@ func (d *server) Unsubscribe(ctx context.Context) error {
 
 	if err := d.dep.End(ctx, tx); err != nil {
 		return fmt.Errorf("End failed: %s", err)
-	}
-	if err := d.dep.Fail(ctx, tx); err != nil {
-		return fmt.Errorf("Fail failed: %s", err)
 	}
 	return nil
 }
